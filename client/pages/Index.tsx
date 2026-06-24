@@ -540,9 +540,7 @@ export default function Index() {
     readStoredString("astra-notes", DEFAULT_NOTES)
   );
 
-  const [generatedSummary, setGeneratedSummary] = useState(() =>
-    readStoredString("astra-generated-summary", "")
-  );
+  const [generatedSummary, setGeneratedSummary] = useState("");
 
   const [isGenerating, setIsGenerating] = useState(false);
 
@@ -560,10 +558,6 @@ export default function Index() {
   useEffect(() => {
     window.localStorage.setItem("astra-notes", notes);
   }, [notes]);
-
-  useEffect(() => {
-    window.localStorage.setItem("astra-generated-summary", generatedSummary);
-  }, [generatedSummary]);
 
   const handleOrbClick = () => {
     // Cycle through states: idle -> listening -> thinking -> idle
@@ -744,7 +738,11 @@ export default function Index() {
           <div className="w-full rounded-2xl border border-[rgba(49,65,88,0.5)] bg-[rgba(15,23,43,0.55)] p-4">
             <h3 className="text-white text-sm font-semibold mb-2">Meeting Summary</h3>
             <p className="text-sm text-[#CAD5E2] whitespace-pre-line">
-              {generatedSummary || "No generated summary yet. Click Generate Summary to create one."}
+              {generatedSummary ? (
+                generatedSummary
+              ) : (
+                "No generated summary yet. Click Generate Summary to create one."
+              )}
             </p>
           </div>
         );
