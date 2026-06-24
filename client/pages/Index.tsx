@@ -340,18 +340,15 @@ function OrbParticle({
 }) {
   // Determine opacity and animation speed based on orb state
   let opacityClass = "opacity-60";
-  let orbitDuration = 12;
   let pulseDuration = "3s";
   let pulseAmount = "4px";
 
   if (orbState === "listening") {
     opacityClass = "opacity-80";
-    orbitDuration = 8;
     pulseDuration = "1.5s";
     pulseAmount = "6px";
   } else if (orbState === "thinking") {
     opacityClass = "opacity-100";
-    orbitDuration = 5;
     pulseDuration = "0.8s";
     pulseAmount = "8px";
   }
@@ -367,7 +364,7 @@ function OrbParticle({
         height: "100%",
         marginLeft: "-50%",
         marginTop: "-50%",
-        animation: `particle-orbit ${orbitDuration}s linear infinite`,
+        animation: "particle-orbit 12s linear infinite",
         transformOrigin: "center center",
       }}
     >
@@ -766,7 +763,7 @@ export default function Index() {
       case "meeting-summary":
       default:
         return (
-          <div className="w-full rounded-2xl border border-[rgba(49,65,88,0.5)] bg-[rgba(15,23,43,0.55)] p-4">
+          <div className="w-full max-h-[240px] overflow-y-auto rounded-2xl border border-[rgba(49,65,88,0.5)] bg-[rgba(15,23,43,0.55)] p-4">
             <h3 className="text-white text-sm font-semibold mb-2">Meeting Summary</h3>
             <p className="text-sm text-[#CAD5E2] whitespace-pre-line">
               {generatedSummary ? (
@@ -928,7 +925,7 @@ export default function Index() {
           )}
 
           {/* ── Center Area ── */}
-          <main className="flex-1 flex flex-col items-center justify-start lg:justify-center relative overflow-y-auto overflow-x-hidden min-h-[400px] py-6">
+          <main className="flex-1 flex flex-col items-center justify-center relative overflow-hidden min-h-[400px] py-8">
             {/* Orb */}
             <AstraOrb orbState={orbState} onClick={handleOrbClick} />
 
