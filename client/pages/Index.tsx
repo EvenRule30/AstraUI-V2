@@ -445,7 +445,7 @@ function AstraOrb({
   return (
     <div
       ref={orbRef}
-      className="relative flex items-center justify-center w-[280px] h-[280px] sm:w-[320px] sm:h-[320px]"
+      className="relative flex shrink-0 aspect-square items-center justify-center w-[280px] h-[280px] sm:w-[320px] sm:h-[320px]"
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
       style={{
@@ -484,7 +484,7 @@ function AstraOrb({
         onClick={onClick}
         aria-label="Astra AI orb — tap to interact"
         className={cn(
-          "relative w-[70%] h-[70%] rounded-full cursor-pointer transition-all duration-300 focus:outline-none focus-visible:ring-4 focus-visible:ring-[#00B8DB]/50"
+          "relative aspect-square w-[70%] h-[70%] rounded-full cursor-pointer transition-all duration-300 focus:outline-none focus-visible:ring-4 focus-visible:ring-[#00B8DB]/50"
         )}
         style={{
           background: "linear-gradient(135deg, #00B8DB 0%, #7F22FE 50%, #C800DE 100%)",
@@ -899,7 +899,7 @@ export default function Index() {
           )}
 
           {/* ── Center Area ── */}
-          <main className="flex-1 flex flex-col items-center justify-center relative overflow-hidden min-h-[400px]">
+          <main className="flex-1 flex flex-col items-center justify-start lg:justify-center relative overflow-y-auto overflow-x-hidden min-h-[400px] py-6">
             {/* Background ambient particles */}
             <div className="absolute inset-0 pointer-events-none overflow-hidden">
               <div
@@ -962,7 +962,7 @@ export default function Index() {
             <p className="text-[#90A1B9]/50 text-xs mt-3">
               {getHintText()}
             </p>
-            <div className="mt-5 w-full max-w-xl px-4">
+            <div className="mt-5 w-full max-w-xl px-4 shrink-0">
               {renderActivePanel()}
             </div>
           </main>
