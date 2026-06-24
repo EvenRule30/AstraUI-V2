@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useEffect, useState, useRef } from "react";
 import { cn } from "@/lib/utils";
 
 type OrbState = "idle" | "listening" | "thinking";
@@ -271,6 +271,49 @@ const CONTROLS = [
   { id: "record", label: "Record", icon: IconRecord, active: false },
 ];
 
+const DEFAULT_NOTES = `Meeting focused on product roadmap, architecture discussion, and budget review.
+
+Key notes:
+- Team reviewed current product roadmap.
+- Architecture discussion focused on edge network reliability.
+- Budget review is still pending final approval.`;
+
+const MOCK_GENERATED_SUMMARY = `Astra Meeting Summary
+
+The meeting covered the product roadmap, architecture direction, and budget planning. The main decision was to continue prioritizing dashboard reliability and low-latency assistant responses.
+
+Key decisions:
+- Continue with the current dashboard-first UI direction.
+- Prioritize local responsiveness before backend integration.
+- Keep Raspberry Pi display testing as a future hardware target.
+
+Action items:
+- Test the deployed Netlify build on multiple screen sizes.
+- Prepare a Raspberry Pi 5 kiosk-mode test.
+- Replace mock assistant behavior with real services later.`;
+
+function readStoredString(key: string, fallback: string) {
+  if (typeof window === "undefined") return fallback;
+  return window.localStorage.getItem(key) ?? fallback;
+}
+
+function readStoredStringArray(key: string, fallback: string[]) {
+  if (typeof window === "undefined") return fallback;
+
+  try {
+    const value = window.localStorage.getItem(key);
+    return value ? JSON.parse(value) : fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+function getOrbStateForControls(activeControls: string[]): OrbState {
+  return activeControls.includes("mic") || activeControls.includes("record")
+    ? "listening"
+    : "idle";
+}
+
 // ─── Orb Particles ────────────────────────────────────────────────────────
 
 const PARTICLES = [
@@ -482,9 +525,45 @@ function AstraOrb({
 // ─── Dashboard ────────────────────────────────────────────────────────────
 
 export default function Index() {
-  const [activeNav, setActiveNav] = useState("meeting-summary");
+  const [activeNav, setActiveNav] = useState(() =>
+    readStoredString("astra-active-nav", "meeting-summary")
+  );
+
   const [orbState, setOrbState] = useState<OrbState>("idle");
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  const [activeControls, setActiveControls] = useState<string[]>(() =>
+    readStoredStringArray("astra-active-controls", ["ask-ai"])
+  );
+
+  const [notes, setNotes] = useState(() =>
+    readStoredString("astra-notes", DEFAULT_NOTES)
+  );
+
+  const [generatedSummary, setGeneratedSummary] = useState(() =>
+    readStoredString("astra-generated-summary", "")
+  );
+
+  const [isGenerating, setIsGenerating] = useState(false);
+
+  useEffect(() => {
+    window.localStorage.setItem("astra-active-nav", activeNav);
+  }, [activeNav]);
+
+  useEffect(() => {
+    window.localStorage.setItem(
+      "astra-active-controls",
+      JSON.stringify(activeControls)
+    );
+  }, [activeControls]);
+
+  useEffect(() => {
+    window.localStorage.setItem("astra-notes", notes);
+  }, [notes]);
+
+  useEffect(() => {
+    window.localStorage.setItem("astra-generated-summary", generatedSummary);
+  }, [generatedSummary]);
 
   const handleOrbClick = () => {
     // Cycle through states: idle -> listening -> thinking -> idle
@@ -520,6 +599,155 @@ export default function Index() {
         return "Tap orb to think";
       case "thinking":
         return "Tap orb to pause";
+    }
+  };
+
+  const handleControlClick = (controlId: string) => {
+    if (controlId === "ask-ai") {
+      setActiveControls((current) =>
+        current.includes("ask-ai") ? current : [...current, "ask-ai"]
+      );
+
+      setOrbState("thinking");
+
+      window.setTimeout(() => {
+        setActiveControls((current) => {
+          const next = current.filter((id) => id !== "ask-ai");
+          setOrbState(getOrbStateForControls(next));
+          return next;
+        });
+      }, 2000);
+
+      return;
+    }
+
+    setActiveControls((current) => {
+      const next = current.includes(controlId)
+        ? current.filter((id) => id !== controlId)
+        : [...current, controlId];
+
+      if (controlId === "mic" || controlId === "record") {
+        setOrbState(getOrbStateForControls(next));
+      }
+
+      return next;
+    });
+  };
+
+  const handleGenerateSummary = () => {
+    setIsGenerating(true);
+    setOrbState("thinking");
+
+    window.setTimeout(() => {
+      setGeneratedSummary(MOCK_GENERATED_SUMMARY);
+      setIsGenerating(false);
+
+      setActiveControls((current) => {
+        setOrbState(getOrbStateForControls(current));
+        return current;
+      });
+    }, 1400);
+  };
+
+  const handleExportNotes = () => {
+    const content = `# Astra Meeting Notes
+
+  ## Live Notes
+
+  ${notes}
+
+  ## Generated Summary
+
+  ${generatedSummary || "No generated summary yet."}
+  `;
+
+    const blob = new Blob([content], {
+      type: "text/markdown;charset=utf-8",
+    });
+
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+
+    link.href = url;
+    link.download = "astra-meeting-notes.md";
+    link.click();
+
+    URL.revokeObjectURL(url);
+  };
+
+  const renderActivePanel = () => {
+    switch (activeNav) {
+      case "live-notes":
+        return (
+          <div className="w-full rounded-2xl border border-[rgba(49,65,88,0.5)] bg-[rgba(15,23,43,0.55)] p-4">
+            <h3 className="text-white text-sm font-semibold mb-2">Live Notes</h3>
+            <textarea
+              value={notes}
+              onChange={(event) => setNotes(event.target.value)}
+              className="w-full min-h-28 resize-none rounded-xl border border-[rgba(49,65,88,0.6)] bg-[rgba(2,6,24,0.65)] p-3 text-sm text-[#CAD5E2] outline-none focus:border-[#53EAFD]"
+              placeholder="Type meeting notes here..."
+            />
+          </div>
+        );
+
+      case "action-items":
+        return (
+          <div className="w-full rounded-2xl border border-[rgba(49,65,88,0.5)] bg-[rgba(15,23,43,0.55)] p-4">
+            <h3 className="text-white text-sm font-semibold mb-3">Action Items</h3>
+            <ul className="space-y-2 text-sm text-[#CAD5E2]">
+              <li>□ Test Netlify deployment on mobile and desktop.</li>
+              <li>□ Prepare Raspberry Pi 5 kiosk-mode test.</li>
+              <li>□ Replace mock summary with real assistant logic later.</li>
+            </ul>
+          </div>
+        );
+
+      case "translation":
+        return (
+          <div className="w-full rounded-2xl border border-[rgba(49,65,88,0.5)] bg-[rgba(15,23,43,0.55)] p-4">
+            <h3 className="text-white text-sm font-semibold mb-2">Translation</h3>
+            <p className="text-sm text-[#90A1B9]">
+              Translation mode is ready. Real translation can be connected later through an API.
+            </p>
+          </div>
+        );
+
+      case "search-memory":
+        return (
+          <div className="w-full rounded-2xl border border-[rgba(49,65,88,0.5)] bg-[rgba(15,23,43,0.55)] p-4">
+            <h3 className="text-white text-sm font-semibold mb-2">Search Memory</h3>
+            <input
+              className="w-full rounded-xl border border-[rgba(49,65,88,0.6)] bg-[rgba(2,6,24,0.65)] p-3 text-sm text-[#CAD5E2] outline-none focus:border-[#53EAFD]"
+              placeholder="Search previous meeting memory..."
+            />
+            <p className="mt-3 text-xs text-[#90A1B9]">
+              Mock result: Product roadmap discussion found.
+            </p>
+          </div>
+        );
+
+      case "settings":
+        return (
+          <div className="w-full rounded-2xl border border-[rgba(49,65,88,0.5)] bg-[rgba(15,23,43,0.55)] p-4">
+            <h3 className="text-white text-sm font-semibold mb-3">Settings</h3>
+            <div className="space-y-2 text-sm text-[#CAD5E2]">
+              <p>AI Online: enabled</p>
+              <p>Edge Network: excellent</p>
+              <p>Local persistence: enabled</p>
+            </div>
+          </div>
+        );
+
+      case "meeting-summary":
+      default:
+        return (
+          <div className="w-full rounded-2xl border border-[rgba(49,65,88,0.5)] bg-[rgba(15,23,43,0.55)] p-4">
+            <h3 className="text-white text-sm font-semibold mb-2">Meeting Summary</h3>
+            <p className="text-sm text-[#CAD5E2] whitespace-pre-line">
+              {generatedSummary || "No generated summary yet. Click Generate Summary to create one."}
+            </p>
+          </div>
+        );
     }
   };
 
@@ -734,6 +962,9 @@ export default function Index() {
             <p className="text-[#90A1B9]/50 text-xs mt-3">
               {getHintText()}
             </p>
+            <div className="mt-5 w-full max-w-xl px-4">
+              {renderActivePanel()}
+            </div>
           </main>
 
           {/* ── Right Sidebar ── */}
@@ -777,15 +1008,19 @@ export default function Index() {
             {/* Action buttons */}
             <div className="flex flex-col gap-3 mt-auto pt-2">
               <button
+                type="button"
+                onClick={handleGenerateSummary}
                 className="w-full py-3 px-6 rounded-[14px] text-white text-base font-medium transition-all duration-200 hover:scale-105 hover:opacity-90 active:scale-95 active:opacity-100"
                 style={{
                   background: "linear-gradient(135deg, #00B8DB 0%, #7F22FE 100%)",
                   boxShadow: "0 10px 15px -3px rgba(0,184,219,0.2), 0 4px 6px -4px rgba(0,184,219,0.2)",
                 }}
               >
-                Generate Summary
+                {isGenerating ? "Generating..." : "Generate Summary"}
               </button>
               <button
+                type="button"
+                onClick={handleExportNotes}
                 className="w-full py-[11px] px-6 rounded-[14px] text-[#CAD5E2] text-base font-medium transition-all duration-200 hover:scale-105 hover:bg-[rgba(29,41,61,0.9)] active:scale-95 active:bg-[rgba(29,41,61,0.7)]"
                 style={{
                   border: "1px solid rgba(49,65,88,0.5)",
@@ -837,32 +1072,39 @@ export default function Index() {
                 boxShadow: "0 25px 50px -12px rgba(0,0,0,0.25)",
               }}
             >
-              {CONTROLS.map((ctrl) => (
-                <button
-                  key={ctrl.id}
-                  className={cn(
-                    "flex flex-col items-center gap-1 px-3 sm:px-4 py-2 rounded-[14px] transition-all duration-200 hover:scale-110 active:scale-90",
-                    "text-[10px] xs:text-xs font-medium",
-                    ctrl.active
-                      ? "text-white hover:opacity-90"
-                      : "text-[#CAD5E2] hover:bg-[rgba(29,41,61,0.8)] hover:border-[rgba(0,211,243,0.5)]"
-                  )}
-                  style={
-                    ctrl.active
-                      ? {
-                          background: "linear-gradient(135deg, #00B8DB 0%, #7F22FE 100%)",
-                          boxShadow: "0 10px 15px -3px rgba(0,184,219,0.3), 0 4px 6px -4px rgba(0,184,219,0.3)",
-                        }
-                      : {
-                          border: "1px solid rgba(49,65,88,0.5)",
-                          background: "rgba(29,41,61,0.6)",
-                        }
-                  }
-                >
-                  <ctrl.icon />
-                  <span className="whitespace-nowrap">{ctrl.label}</span>
-                </button>
-              ))}
+              {CONTROLS.map((ctrl) => {
+                const isControlActive = activeControls.includes(ctrl.id);
+
+                return (
+                  <button
+                    key={ctrl.id}
+                    type="button"
+                    aria-pressed={isControlActive}
+                    onClick={() => handleControlClick(ctrl.id)}
+                    className={cn(
+                      "flex flex-col items-center gap-1 px-3 sm:px-4 py-2 rounded-[14px] transition-all duration-200 hover:scale-110 active:scale-90",
+                      "text-[10px] xs:text-xs font-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-[#53EAFD]",
+                      isControlActive
+                        ? "text-white hover:opacity-90"
+                        : "text-[#CAD5E2] hover:bg-[rgba(29,41,61,0.8)] hover:border-[rgba(0,211,243,0.5)]"
+                    )}
+                    style={
+                      isControlActive
+                        ? {
+                            background: "linear-gradient(135deg, #00B8DB 0%, #7F22FE 100%)",
+                            boxShadow: "0 10px 15px -3px rgba(0,184,219,0.3), 0 4px 6px -4px rgba(0,184,219,0.3)",
+                          }
+                        : {
+                            border: "1px solid rgba(49,65,88,0.5)",
+                            background: "rgba(29,41,61,0.6)",
+                          }
+                    }
+                  >
+                    <ctrl.icon />
+                    <span className="whitespace-nowrap">{ctrl.label}</span>
+                  </button>
+                );
+              })}
             </div>
           </div>
         </footer>
