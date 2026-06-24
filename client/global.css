@@ -1,0 +1,193 @@
+/** @import must precede all other statements */
+@import url("https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 224 88% 4%;
+    --foreground: 210 40% 98%;
+
+    --card: 222 84% 5%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 222 84% 5%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 192 100% 43%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 220 32% 17%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 220 32% 17%;
+    --muted-foreground: 215 20% 65%;
+
+    --accent: 220 32% 17%;
+    --accent-foreground: 210 40% 98%;
+
+    --destructive: 0 62% 31%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 220 32% 17%;
+    --input: 220 32% 17%;
+    --ring: 192 100% 43%;
+
+    --radius: 0.875rem;
+
+    --sidebar-background: 224 88% 4%;
+    --sidebar-foreground: 210 30% 72%;
+    --sidebar-primary: 192 100% 43%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 220 32% 17%;
+    --sidebar-accent-foreground: 210 40% 98%;
+    --sidebar-border: 220 32% 17%;
+    --sidebar-ring: 192 100% 43%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-[#020618] text-foreground font-inter;
+    font-family: "Inter", -apple-system, Roboto, Helvetica, sans-serif;
+  }
+
+  :where(p, span, li, h1, h2, h3, h4, h5, h6, a, button, label, td, th) {
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+
+  pre,
+  code {
+    overflow-x: auto;
+    white-space: pre;
+  }
+}
+
+/* ─── Orb Animations ─── */
+
+@keyframes orb-sphere-pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+@keyframes orb-active-pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.08);
+  }
+}
+
+@keyframes orb-blur-breathe {
+  0%, 100% { transform: scale(1); opacity: 0.85; }
+  50% { transform: scale(1.1); opacity: 1; }
+}
+
+@keyframes ring-cw {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes ring-ccw {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(-360deg); }
+}
+
+@keyframes particle-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes particle-orbit {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes orb-follow {
+  from {
+    transform: translate(0, 0);
+  }
+  to {
+    transform: translate(0, 0);
+  }
+}
+
+@keyframes particle-fade-a {
+  0%, 100% { opacity: 0.08; }
+  40%, 60% { opacity: 0.9; }
+}
+
+@keyframes particle-fade-b {
+  0%, 100% { opacity: 0.55; }
+  50% { opacity: 0.08; }
+}
+
+@keyframes particle-fade-c {
+  0%, 20% { opacity: 0.08; }
+  60%, 80% { opacity: 0.65; }
+  100% { opacity: 0.08; }
+}
+
+@keyframes particle-fade-d {
+  0%, 100% { opacity: 0.25; }
+  30%, 70% { opacity: 0.08; }
+}
+
+@keyframes listening-expand {
+  0% { transform: scale(1); opacity: 0.6; }
+  100% { transform: scale(1.6); opacity: 0; }
+}
+
+@keyframes bottom-shadow-pulse {
+  0%, 100% { transform: scaleX(1) scaleY(1); opacity: 0.7; }
+  50% { transform: scaleX(1.15) scaleY(1.3); opacity: 1; }
+}
+
+/* Utility classes */
+.orb-idle {
+  animation: orb-sphere-pulse 3s ease-in-out infinite;
+}
+
+.orb-active {
+  animation: orb-active-pulse 1.2s ease-in-out infinite;
+}
+
+.orb-blur-breathe {
+  animation: orb-blur-breathe 3s ease-in-out infinite;
+}
+
+.ring-spin-cw {
+  animation: ring-cw 22s linear infinite;
+}
+
+.ring-spin-ccw {
+  animation: ring-ccw 32s linear infinite;
+}
+
+.listening-ripple {
+  animation: listening-expand 1.8s ease-out infinite;
+}
+
+.listening-ripple-delay {
+  animation: listening-expand 1.8s ease-out 0.6s infinite;
+}
+
+.bottom-shadow-pulse {
+  animation: bottom-shadow-pulse 3s ease-in-out infinite;
+}
