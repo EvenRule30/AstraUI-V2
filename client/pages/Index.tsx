@@ -317,14 +317,14 @@ function getOrbStateForControls(activeControls: string[]): OrbState {
 // ─── Orb Particles ────────────────────────────────────────────────────────
 
 const PARTICLES = [
-  { id: 1, angle: 0, distance: 140 },
-  { id: 2, angle: 45, distance: 130 },
-  { id: 3, angle: 90, distance: 150 },
-  { id: 4, angle: 135, distance: 120 },
-  { id: 5, angle: 180, distance: 145 },
-  { id: 6, angle: 225, distance: 125 },
-  { id: 7, angle: 270, distance: 155 },
-  { id: 8, angle: 315, distance: 135 },
+  { id: 1, angle: 0, distance: 148 },
+  { id: 2, angle: 45, distance: 138 },
+  { id: 3, angle: 90, distance: 156 },
+  { id: 4, angle: 135, distance: 132 },
+  { id: 5, angle: 180, distance: 150 },
+  { id: 6, angle: 225, distance: 136 },
+  { id: 7, angle: 270, distance: 160 },
+  { id: 8, angle: 315, distance: 142 },
 ];
 
 // ─── OrbParticle Component ────────────────────────────────────────────────
@@ -340,14 +340,20 @@ function OrbParticle({
 }) {
   // Determine opacity and animation speed based on orb state
   let opacityClass = "opacity-60";
-  let duration = 12;
+  let orbitDuration = 12;
+  let pulseDuration = "3s";
+  let pulseAmount = "4px";
 
   if (orbState === "listening") {
     opacityClass = "opacity-80";
-    duration = 8;
+    orbitDuration = 8;
+    pulseDuration = "1.5s";
+    pulseAmount = "6px";
   } else if (orbState === "thinking") {
     opacityClass = "opacity-100";
-    duration = 5;
+    orbitDuration = 5;
+    pulseDuration = "0.8s";
+    pulseAmount = "8px";
   }
 
   // Create a proper orbital container that rotates, with the particle positioned inside
@@ -361,26 +367,37 @@ function OrbParticle({
         height: "100%",
         marginLeft: "-50%",
         marginTop: "-50%",
-        animation: `particle-orbit ${duration}s linear infinite`,
+        animation: `particle-orbit ${orbitDuration}s linear infinite`,
         transformOrigin: "center center",
       }}
     >
       {/* Particle positioned at the initial angle and distance */}
       <div
-        className={cn("absolute w-2 h-2 rounded-full bg-[#53EAFD]", opacityClass)}
+        className="absolute left-1/2 top-1/2"
         style={{
-          left: "50%",
-          top: "50%",
-          width: "8px",
-          height: "8px",
-          marginLeft: "-4px",
-          marginTop: "-4px",
-          boxShadow: "0 0 8px rgba(83, 234, 253, 0.6)",
-          // Position at the calculated orbital position
-          transform: `rotate(${angle}deg) translateX(${distance}px)`,
+          transform: `rotate(${angle}deg)`,
           transformOrigin: "center center",
         }}
-      />
+      >
+        <div
+          className={cn(
+            "absolute rounded-full bg-[#53EAFD] orb-particle-reactive",
+            opacityClass
+          )}
+          style={
+            {
+              "--orbit-distance": `${distance}px`,
+              "--orbit-pulse": pulseAmount,
+              "--particle-pulse-duration": pulseDuration,
+              width: "8px",
+              height: "8px",
+              marginLeft: "-4px",
+              marginTop: "-4px",
+              boxShadow: "0 0 8px rgba(83, 234, 253, 0.6)",
+            } as React.CSSProperties
+          }
+        />
+      </div>
     </div>
   );
 }
@@ -453,7 +470,7 @@ function AstraOrb({
         transform: `translate(${mousePos.x}px, ${mousePos.y}px)`,
       }}
     >
-      
+
       {/* Centered dual-color aura attached to the orb */}
       <div
         className="absolute inset-[-22%] rounded-full pointer-events-none"

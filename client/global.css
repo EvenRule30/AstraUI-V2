@@ -191,3 +191,18 @@
 .bottom-shadow-pulse {
   animation: bottom-shadow-pulse 3s ease-in-out infinite;
 }
+
+.orb-particle-reactive {
+  animation: particle-react-pulse var(--particle-pulse-duration, 3s) ease-in-out infinite;
+}
+
+@keyframes particle-react-pulse {
+  0%,
+  100% {
+    transform: translateX(var(--orbit-distance));
+  }
+
+  50% {
+    transform: translateX(calc(var(--orbit-distance) + var(--orbit-pulse)));
+  }
+}
