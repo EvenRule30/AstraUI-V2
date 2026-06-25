@@ -317,14 +317,14 @@ function getOrbStateForControls(activeControls: string[]): OrbState {
 // ─── Orb Particles ────────────────────────────────────────────────────────
 
 const PARTICLES = [
-  { id: 1, angle: 0, distance: 148 },
-  { id: 2, angle: 45, distance: 138 },
-  { id: 3, angle: 90, distance: 156 },
-  { id: 4, angle: 135, distance: 132 },
+  { id: 1, angle: 0, distance: 150 },
+  { id: 2, angle: 45, distance: 130 },
+  { id: 3, angle: 90, distance: 140 },
+  { id: 4, angle: 135, distance: 160 },
   { id: 5, angle: 180, distance: 150 },
-  { id: 6, angle: 225, distance: 136 },
-  { id: 7, angle: 270, distance: 160 },
-  { id: 8, angle: 315, distance: 142 },
+  { id: 6, angle: 225, distance: 130 },
+  { id: 7, angle: 270, distance: 140 },
+  { id: 8, angle: 315, distance: 160 },
 ];
 
 // ─── OrbParticle Component ────────────────────────────────────────────────
@@ -340,17 +340,17 @@ function OrbParticle({
 }) {
   // Determine opacity and animation speed based on orb state
   let opacityClass = "opacity-60";
-  let pulseDuration = "3s";
-  let pulseAmount = "4px";
+  let pulseDuration = "5s";
+  let pulseAmount = "3px";
 
   if (orbState === "listening") {
     opacityClass = "opacity-80";
-    pulseDuration = "1.5s";
-    pulseAmount = "6px";
+    pulseDuration = "3s";
+    pulseAmount = "5px";
   } else if (orbState === "thinking") {
     opacityClass = "opacity-100";
-    pulseDuration = "0.8s";
-    pulseAmount = "8px";
+    pulseDuration = "1s";
+    pulseAmount = "6px";
   }
 
   // Create a proper orbital container that rotates, with the particle positioned inside
@@ -364,7 +364,7 @@ function OrbParticle({
         height: "100%",
         marginLeft: "-50%",
         marginTop: "-50%",
-        animation: "particle-orbit 12s linear infinite",
+        animation: "particle-orbit 24s linear infinite",
         transformOrigin: "center center",
       }}
     >
@@ -411,23 +411,22 @@ function AstraOrb({
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const orbRef = useRef<HTMLDivElement>(null);
 
-  const isIdle = orbState === "idle";
   const isListening = orbState === "listening";
   const isThinking = orbState === "thinking";
 
   // Determine glow intensity (reduced) and animation based on state
   let glowColor = "rgba(57, 170, 218, 0.25)";
   let glowColorSecond = "rgba(127, 34, 254, 0.08)";
-  let pulseAnimation = "orb-sphere-pulse 3s ease-in-out infinite";
+  let pulseAnimation = "orb-sphere-pulse 5s ease-in-out infinite";
 
   if (isListening) {
     glowColor = "rgba(57, 170, 218, 0.4)";
     glowColorSecond = "rgba(127, 34, 254, 0.15)";
-    pulseAnimation = "orb-sphere-pulse 1.5s ease-in-out infinite";
+    pulseAnimation = "orb-sphere-pulse 3s ease-in-out infinite";
   } else if (isThinking) {
     glowColor = "rgba(57, 170, 218, 0.55)";
     glowColorSecond = "rgba(127, 34, 254, 0.25)";
-    pulseAnimation = "orb-sphere-pulse 0.8s ease-in-out infinite";
+    pulseAnimation = "orb-sphere-pulse 1s ease-in-out infinite";
   }
 
   // Handle mouse movement for orb following effect
@@ -459,7 +458,7 @@ function AstraOrb({
   return (
     <div
       ref={orbRef}
-      className="relative flex shrink-0 aspect-square items-center justify-center w-[280px] h-[280px] sm:w-[320px] sm:h-[320px]"
+      className="relative flex shrink-0 aspect-square items-center justify-center w-[175px] sm:w-[195px] xl:w-[320px]"
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
       style={{
@@ -509,43 +508,55 @@ function AstraOrb({
 
       {/* Main orb sphere — clickable */}
       <button
+        type="button"
         onClick={onClick}
         aria-label="Astra AI orb — tap to interact"
         className={cn(
-          "relative aspect-square w-[70%] h-[70%] rounded-full cursor-pointer transition-all duration-300 focus:outline-none focus-visible:ring-4 focus-visible:ring-[#00B8DB]/50"
+          "astra-orb-button relative aspect-square w-[64%] overflow-hidden rounded-full cursor-pointer transition-all duration-300 focus:outline-none focus-visible:ring-4 focus-visible:ring-[#53EAFD]/50"
         )}
         style={{
-          background: "linear-gradient(135deg, #00B8DB 0%, #7F22FE 50%, #C800DE 100%)",
-          boxShadow: `0 0 50px 15px ${glowColor}, 0 0 100px 40px ${glowColorSecond}`,
+          background: `
+            radial-gradient(circle at 18% 18%,
+              rgba(105, 218, 232, 0.72) 0%,
+              rgba(102, 190, 230, 0.46) 24%,
+              transparent 48%
+            ),
+            radial-gradient(circle at 76% 72%,
+              rgba(168, 28, 199, 0.28) 0%,
+              transparent 56%
+            ),
+            linear-gradient(128deg,
+              #68d2e1 0%,
+              #6b94df 34%,
+              #7e42da 67%,
+              #9d24bd 100%
+            )
+          `,
+          boxShadow: `
+            inset -18px -24px 44px rgba(32, 0, 74, 0.14),
+            inset 10px 12px 28px rgba(255, 255, 255, 0.045),
+            0 0 38px rgba(83, 234, 253, 0.20),
+            0 0 72px rgba(142, 51, 255, 0.16),
+            0 0 32px 8px ${glowColor},
+            0 0 64px 18px ${glowColorSecond}
+          `,
           animation: pulseAnimation,
         }}
       >
-        {/* Specular highlight */}
+        {/* Soft atmospheric wash */}
         <div
-          className="absolute inset-0 rounded-full"
+          className="absolute inset-0 rounded-full pointer-events-none"
           style={{
-            background: "linear-gradient(45deg, transparent 0%, rgba(255,255,255,0.12) 50%, transparent 100%)",
-          }}
-        />
-        {/* Inner glow ring */}
-        <div
-          className="absolute inset-[3px] rounded-full"
-          style={{
-            background: "linear-gradient(135deg, rgba(255,255,255,0.08) 0%, transparent 60%)",
+            background: `
+              linear-gradient(140deg,
+                rgba(255,255,255,0.055) 0%,
+                transparent 42%,
+                rgba(42,0,86,0.08) 100%
+              )
+            `,
           }}
         />
       </button>
-
-      {/* Bottom shadow blur */} 
-      <div
-        className="absolute bottom-0 left-1/2 -translate-x-1/2 h-8 rounded-full bottom-shadow-pulse pointer-events-none"
-        style={{
-          width: "80%",
-          background: "linear-gradient(90deg, transparent 0%, rgba(142,81,255,0.15) 50%, transparent 100%)",
-          filter: "blur(24px)",
-          bottom: "-4px",
-        }}
-      />
     </div>
   );
 } 
@@ -781,7 +792,7 @@ export default function Index() {
     <div className="min-h-screen bg-[#020618] flex items-center justify-center p-0 lg:p-4 font-inter">
       {/* Main Card */}
       <div
-        className="relative w-full lg:max-w-[1366px] min-h-screen lg:min-h-0 lg:h-[1024px] rounded-none lg:rounded-3xl overflow-hidden flex flex-col"
+        className="relative w-screen h-screen max-w-none min-h-0 rounded-none overflow-hidden flex flex-col lg:max-w-[1366px] lg:rounded-3xl"
         style={{
           background: "linear-gradient(135deg, #020618 0%, #0F172B 50%, #020618 100%)",
           border: "1px solid rgba(29,41,61,0.5)",
@@ -790,7 +801,7 @@ export default function Index() {
       >
         {/* ── Top Bar ── */}
         <header
-          className="flex items-center justify-between px-4 sm:px-6 py-4 flex-shrink-0"
+          className="flex items-center justify-between px-3 sm:px-4 py-2 sm:py-3 flex-shrink-0"
           style={{
             borderBottom: "1px solid rgba(0,184,219,0.2)",
             background: "rgba(15,23,43,0.4)",
@@ -871,7 +882,7 @@ export default function Index() {
           <aside
             className={cn(
               "absolute lg:relative inset-y-0 left-0 z-20 transition-transform duration-300 flex flex-col",
-              "lg:translate-x-0 lg:w-64 lg:flex-shrink-0",
+              "xl:translate-x-0 xl:w-64 xl:flex-shrink-0",
               sidebarOpen ? "translate-x-0 w-64" : "-translate-x-full w-64"
             )}
             style={{
@@ -919,27 +930,27 @@ export default function Index() {
           {/* Sidebar overlay for mobile */}
           {sidebarOpen && (
             <div
-              className="absolute inset-0 z-10 bg-black/50 lg:hidden"
+              className="absolute inset-0 z-10 bg-black/50 xl:hidden"
               onClick={() => setSidebarOpen(false)}
             />
           )}
 
           {/* ── Center Area ── */}
-          <main className="flex-1 flex flex-col items-center justify-center relative overflow-hidden min-h-[400px] py-8">
+          <main className="flex-1 flex flex-col items-center justify-center relative overflow-hidden min-h-0 py-1 sm:py-2">
             {/* Orb */}
             <AstraOrb orbState={orbState} onClick={handleOrbClick} />
 
             {/* Name */}
-            <h1 className="text-white text-2xl font-semibold leading-8 mt-6">Astra</h1>
+            <h1 className="text-white text-base sm:text-lg xl:text-2xl font-semibold leading-6 mt-1 xl:mt-6">Astra</h1>
 
             {/* Subtitle */}
-            <p className="text-[#90A1B9] text-sm font-normal mt-1">
+            <p className="text-[#90A1B9] text-[11px] sm:text-xs xl:text-sm font-normal mt-1">
               Real-time meeting intelligence assistant
             </p>
 
             {/* Status badge */}
             <div
-              className="flex items-center gap-1.5 px-4 py-[7px] rounded-full text-[#53EAFD] text-xs font-medium mt-4 transition-all duration-300"
+              className="flex items-center gap-1.5 px-3 py-[4px] xl:px-4 xl:py-[7px] rounded-full text-[#53EAFD] text-[11px] xl:text-xs font-medium mt-2 transition-all duration-300"
               style={{
                 border: "1px solid rgba(0,211,243,0.4)",
                 background: "rgba(0,184,219,0.2)",
@@ -968,14 +979,14 @@ export default function Index() {
             <p className="text-[#90A1B9]/50 text-xs mt-3">
               {getHintText()}
             </p>
-            <div className="mt-5 w-full max-w-xl px-4 shrink-0">
+            <div className="mt-3 w-full max-w-lg px-4 shrink-0 max-h-[86px] overflow-y-auto xl:max-h-[260px]">
               {renderActivePanel()}
             </div>
           </main>
 
           {/* ── Right Sidebar ── */}
           <aside
-            className="hidden lg:flex w-80 flex-shrink-0 flex-col p-4 gap-4 overflow-y-auto"
+            className="hidden xl:flex w-80 flex-shrink-0 flex-col p-4 gap-4 overflow-y-auto"
             style={{
               borderLeft: "1px solid rgba(29,41,61,0.5)",
               background: "rgba(15,23,43,0.2)",
@@ -1041,24 +1052,24 @@ export default function Index() {
 
         {/* ── Bottom Bar ── */}
         <footer
-          className="flex-shrink-0 flex flex-col gap-4 pt-3 pb-4 px-4 sm:px-6"
+          className="flex-shrink-0 flex flex-col gap-1 xl:gap-4 pt-1 pb-2 xl:pt-3 xl:pb-4 px-3 sm:px-4 xl:px-6"
           style={{ borderTop: "1px solid rgba(29,41,61,0.4)" }}
         >
           {/* Timeline segments */}
-          <div className="hidden sm:flex items-center justify-center gap-4 flex-wrap">
+          <div className="hidden sm:flex items-center justify-center gap-3 xl:gap-4 flex-wrap">
             {TIMELINE.map((segment) => (
               <div key={segment.label} className="flex flex-col items-start gap-1">
                 <div
-                  className="w-28 h-2 rounded-full"
+                  className="w-24 xl:w-28 h-1.5 xl:h-2 rounded-full"
                   style={{ background: segment.color, opacity: segment.opacity }}
                 />
-                <span className="text-[#90A1B9] text-xs font-normal">{segment.label}</span>
+                <span className="text-[#90A1B9] text-[11px] xl:text-xs font-normal">{segment.label}</span>
               </div>
             ))}
           </div>
 
           {/* Dot separator */}
-          <div className="hidden sm:flex items-center justify-center gap-1">
+          <div className="hidden xl:flex items-center justify-center gap-1">
             {Array.from({ length: 30 }).map((_, i) => (
               <div
                 key={i}
@@ -1071,7 +1082,7 @@ export default function Index() {
           {/* Controls */}
           <div className="flex items-center justify-center">
             <div
-              className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 p-3 rounded-2xl"
+              className="flex flex-wrap items-center justify-center gap-2 p-2 xl:p-3 rounded-2xl"
               style={{
                 border: "1px solid rgba(49,65,88,0.5)",
                 background: "rgba(15,23,43,0.6)",
@@ -1088,7 +1099,7 @@ export default function Index() {
                     aria-pressed={isControlActive}
                     onClick={() => handleControlClick(ctrl.id)}
                     className={cn(
-                      "flex flex-col items-center gap-1 px-3 sm:px-4 py-2 rounded-[14px] transition-all duration-200 hover:scale-110 active:scale-90",
+                      "flex flex-col items-center gap-1 px-2 xl:px-4 py-1.5 xl:py-2 rounded-[12px] xl:rounded-[14px] transition-all duration-200 hover:scale-105 active:scale-95",
                       "text-[10px] xs:text-xs font-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-[#53EAFD]",
                       isControlActive
                         ? "text-white hover:opacity-90"

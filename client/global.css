@@ -196,6 +196,14 @@
   animation: particle-react-pulse var(--particle-pulse-duration, 3s) ease-in-out infinite;
 }
 
+.astra-orb-button {
+  filter: brightness(0.92) saturate(0.88);
+}
+
+.astra-orb-button:hover {
+  filter: brightness(1.12) saturate(1.08);
+}
+
 @keyframes particle-react-pulse {
   0%,
   100% {
