@@ -792,7 +792,7 @@ export default function Index() {
     <div className="min-h-screen bg-[#020618] flex items-center justify-center p-0 lg:p-4 font-inter">
       {/* Main Card */}
       <div
-        className="relative w-screen h-screen max-w-none min-h-0 rounded-none overflow-hidden flex flex-col lg:max-w-[1366px] lg:rounded-3xl"
+        className="astra-shell relative w-screen h-screen max-w-none min-h-0 rounded-none overflow-hidden flex flex-col lg:max-w-[1366px] lg:rounded-3xl"
         style={{
           background: "linear-gradient(135deg, #020618 0%, #0F172B 50%, #020618 100%)",
           border: "1px solid rgba(29,41,61,0.5)",
